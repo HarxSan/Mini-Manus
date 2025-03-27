@@ -3,6 +3,7 @@ import os
 
 from dotenv import load_dotenv 
 from langchain_google_genai import ChatGoogleGenerativeAI  
+from langchain_openai import ChatOpenAI
 from pydantic import SecretStr 
 
 from browser_use import Agent, BrowserConfig, Controller, ActionResult
@@ -11,11 +12,12 @@ from browser_use.browser.context import BrowserContextConfig
 
 load_dotenv()
 api_key = os.getenv('GEMINI_API_KEY')
-if not api_key:
-	raise ValueError('GEMINI_API_KEY is not set')
+gemma_key = os.getenv('OPENROUTER_API_KEY')
+
+if not api_key and not gemma_key:
+	raise ValueError('API_KEY is not set')
 
 llm = ChatGoogleGenerativeAI(model='gemini-2.0-flash-exp', api_key=SecretStr(api_key))
-planner_llm = ChatOpenAI(model='o3-mini')
 
 # Initialize the controller
 controller = Controller()
@@ -38,17 +40,23 @@ browser = Browser(
 async def run_search():
 	agent = Agent(
 		task="""
-  				Give me a summary of the last five gmails.
+  				Goto gmail and propose a interview confirmation to hariisankar.s2022ai-ds@sece.ac.in. Ensure the mail is sent by verifying it in the sent box.
       		""",
 		llm=llm,
 		max_actions_per_step=4,
 		browser=browser,
 		use_vision=True,
-		planner_llm=planner_llm,
+		planner_llm = ChatOpenAI(
+			base_url="https://openrouter.ai/api/v1",
+			model="google/gemma-3-27b-it:free",
+			api_key=SecretStr(gemma_key),
+		)
+,
   		controller=controller
 	)
 
-	await agent.run(max_steps=50);     await browser.close() 
+	await agent.run(max_steps=50);     
+ 	await browser.close() 
     
 
 if __name__ == '__main__':
