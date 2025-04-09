@@ -46,7 +46,7 @@ class AIAssistant:
         )
         
         # Initialize Search Tool
-        self.search_tool = TavilySearchResults(max_results=3)
+        self.search_tool = TavilySearchResults(max_results=5)
         self.tools = [self.search_tool]
         
         # Prepare LLM with tools
@@ -128,7 +128,7 @@ def main():
         if st.button("🔄 Reset Conversation", use_container_width=True):
             st.session_state.chat_history = []
             st.rerun()
-        
+       
         # Model Settings
         st.header("Model Configuration")
         model_choice = st.selectbox(
@@ -146,7 +146,24 @@ def main():
             value=0.3,
             step=0.1
         )
+
         
+        st.header("Mode Selection")
+        
+        # Toggle for switching modes
+        mode_switch = st.toggle(
+            "Enable Browser Automation Mode", 
+            key="mode_toggle",
+            help="Switch between conversational AI and browser automation"
+        )
+        
+        if mode_switch:
+            st.warning("🌐 Browser Automation Mode Activated")
+            st.info("Inputs will now trigger browser actions")
+        else:
+            st.success("💬 Conversational AI Mode Active")
+        st.markdown("---")        
+
         # Additional Controls
         max_tokens = st.number_input(
             "Max Response Length", 
