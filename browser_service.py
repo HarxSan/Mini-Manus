@@ -250,8 +250,6 @@ async def execute_browser_task(session_id: str, task: str, max_steps: int = 50):
             
             # Run the agent with timeout protection
             import asyncio
-            print(f"Using LLM: {llm.model}")
-            print(f"Using planner LLM: {planner_llm.model}")
 
             result = await asyncio.wait_for(
                 agent.run(max_steps=max_steps), 
